@@ -56,11 +56,15 @@ function buildShell(content, activeFile) {
 
   app.innerHTML = `
     <div class="app_shell">
-      <aside class="sidebar">
-        <div class="sidebar_brand">REFLEX</div>
+      <aside class="sidebar" style="display: flex; flex-direction: column;">
+        <a href="../index.html" class="sidebar_brand" style="color: inherit;">REFLEX</a>
         <div class="sidebar_role">${roleName(role).toUpperCase()}</div>
         <nav class="nav_list">${nav}</nav>
-        <a class="nav_link logout_link" href="../login.html" onclick="localStorage.removeItem('reflex_token'); localStorage.removeItem('reflex_role')">Sign out</a>
+        
+        <div style="margin-top: auto;">
+          <a class="nav_link" href="../index.html" style="color: #98a2b3;">&larr; Back to Website</a>
+          <a class="nav_link logout_link" href="../login.html" onclick="localStorage.removeItem('reflex_token'); localStorage.removeItem('reflex_role')" style="margin-top: 4px;">Sign out</a>
+        </div>
       </aside>
 
       <section class="main_area">
