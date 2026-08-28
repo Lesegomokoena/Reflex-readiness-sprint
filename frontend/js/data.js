@@ -16,7 +16,9 @@ async function apiFetch(endpoint, options = {}) {
   
   if (response.status === 401) {
     localStorage.removeItem("reflex_token");
+    localStorage.removeItem("reflex_role");
     window.location.href = "../login.html";
+    throw new Error("Session expired. Redirecting to login...");
   }
   
   if (!response.ok) {
