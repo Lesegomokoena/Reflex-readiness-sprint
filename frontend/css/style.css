@@ -21,6 +21,25 @@
   --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
 }
 
+[data-theme="dark"] {
+  --ink: #f8fafc;
+  --muted: #94a3b8;
+  --line: #334155;
+  --surface: #1e293b;
+  --page: #0f172a;
+  --nav: #0f172a;
+  --blue: #60a5fa;
+  --blue_soft: rgba(37, 99, 235, 0.15);
+  --green: #4ade80;
+  --green_soft: rgba(21, 128, 61, 0.15);
+  --amber: #fbbf24;
+  --amber_soft: rgba(180, 83, 9, 0.15);
+  --red: #f87171;
+  --red_soft: rgba(180, 35, 24, 0.15);
+  --gray_soft: #1e293b;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -34,6 +53,7 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
 }
 
 button {
@@ -244,7 +264,7 @@ select,
 textarea {
   width: 100%;
   border: 1px solid #d0d5dd;
-  background: #fff;
+  background: var(--surface);
   border-radius: 6px;
   padding: 12px 13px;
   outline: none;
@@ -293,7 +313,7 @@ textarea {
 }
 
 .ghost_button {
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   border: 1px solid var(--line);
 }
@@ -371,7 +391,7 @@ textarea {
 
 .topbar {
   height: 72px;
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
@@ -431,7 +451,7 @@ textarea {
 }
 
 .stat_card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   padding: 20px;
 }
@@ -461,7 +481,7 @@ textarea {
 }
 
 .panel {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   margin-bottom: 20px;
 }
@@ -491,7 +511,7 @@ textarea {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  background: var(--surface);
 }
 
 th {
@@ -499,7 +519,7 @@ th {
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
-  background: #fafafa;
+  background: var(--gray_soft);
 }
 
 th,

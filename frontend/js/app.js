@@ -1,3 +1,20 @@
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+}
+initTheme();
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
 function roleName(role) {
   return {
     retailer: "Retailer Staff",
@@ -71,6 +88,7 @@ function buildShell(content, activeFile) {
         <header class="topbar">
           <div class="topbar_title">Delivery Management System</div>
           <div class="user_area">
+            <button onclick="toggleTheme()" class="ghost_button theme_toggle" style="padding: 6px 10px; font-size: 16px; border: none; background: transparent;" title="Toggle Theme">🌓</button>
             <span>${roleName(role)}</span>
             <span class="user_circle">${roleName(role).charAt(0)}</span>
           </div>
