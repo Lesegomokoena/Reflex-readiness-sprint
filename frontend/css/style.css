@@ -108,16 +108,16 @@ a {
   text-align: center;
   padding: 140px 20px;
   background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.85)), url('../img/hero-bg.png');
-  background-size: 120%;
-  background-position: 0% 0%;
+  background-size: 100%;
+  background-position: center;
   color: #fff;
-  animation: heroBgPan 30s ease-in-out infinite alternate;
+  animation: heroBgZoom 30s ease-in-out infinite alternate;
   overflow: hidden;
 }
 
-@keyframes heroBgPan {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
+@keyframes heroBgZoom {
+  0% { background-size: 100%; }
+  100% { background-size: 115%; }
 }
 
 .hero h1 {
@@ -126,9 +126,9 @@ a {
   margin-bottom: 24px;
   letter-spacing: -1px;
   text-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  animation: fadeInUp 0.8s ease-out forwards;
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
 }
 
 .hero p {
@@ -137,15 +137,15 @@ a {
   max-width: 650px;
   margin: 0 auto 40px;
   line-height: 1.6;
-  animation: fadeInUp 0.8s ease-out 0.2s forwards;
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
 }
 
 .hero .primary_button {
-  animation: fadeInUp 0.8s ease-out 0.4s forwards;
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
 }
 
 @keyframes fadeInUp {
