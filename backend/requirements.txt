@@ -1,0 +1,10 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-JWT-Extended
+Flask-Cors
+pytest
+python-dotenv
+qrcode
+Pillow
+Werkzeug

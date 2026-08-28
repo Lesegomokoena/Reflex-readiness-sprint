@@ -42,9 +42,10 @@ function requestTable(deliveries) {
   `;
 }
 
-function dispatcherDashboard() {
-  const data = getData();
-  const s = dispatcherStats(data.deliveries);
+async function dispatcherDashboard() {
+  const deliveries = await api.getDeliveries();
+  const riders = await api.getRiders();
+  const s = dispatcherStats(deliveries);
 
   buildShell(`
     <div class="page_heading">
@@ -67,7 +68,7 @@ function dispatcherDashboard() {
           <h2>Open Delivery Requests</h2>
           <a class="muted" href="requests.html">View all</a>
         </div>
-        ${requestTable(data.deliveries.filter(d => d.status === "Pending").slice(0, 6))}
+        ${requestTable(deliveries.filter(d => d.status === "Pending").slice(0, 6))}
       </section>
 
       <section class="panel">
@@ -76,11 +77,11 @@ function dispatcherDashboard() {
           <table>
             <thead><tr><th>Rider</th><th>Status</th><th>Deliveries</th></tr></thead>
             <tbody>
-              ${data.riders.map(r => `
+              ${riders.map(r => `
                 <tr>
                   <td>${r.name}</td>
-                  <td>${statusBadge(r.status)}</td>
-                  <td>${r.deliveries}</td>
+                  <td>${statusBadge("Available")}</td>
+                  <td>-</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -91,8 +92,8 @@ function dispatcherDashboard() {
   `, "dashboard.html");
 }
 
-function dispatcherRequests() {
-  const data = getData();
+async function dispatcherRequests() {
+  const deliveries = await api.getDeliveries();
   buildShell(`
     <div class="page_heading">
       <div>
@@ -103,14 +104,20 @@ function dispatcherRequests() {
 
     <section class="panel">
       <div class="panel_header"><h2>Open Requests</h2></div>
-      ${requestTable(data.deliveries.filter(d => d.status === "Pending"))}
+      ${requestTable(deliveries.filter(d => d.status === "Pending"))}
     </section>
   `, "requests.html");
 }
 
-function dispatcherAssignments() {
-  const data = getData();
-  const delivery = queryDeliveryId() ? getDelivery(queryDeliveryId()) : null;
+async function dispatcherAssignments() {
+  const deliveries = await api.getDeliveries();
+  const deliveryId = queryDeliveryId();
+  let delivery = null;
+  if (deliveryId) {
+    try {
+      delivery = await api.getDelivery(deliveryId);
+    } catch (e) {}
+  }
 
   if (!delivery) {
     buildShell(`
@@ -122,13 +129,14 @@ function dispatcherAssignments() {
       </div>
       <section class="panel">
         <div class="panel_header"><h2>Requests Awaiting Assignment</h2></div>
-        ${requestTable(data.deliveries.filter(d => d.status === "Pending"))}
+        ${requestTable(deliveries.filter(d => d.status === "Pending"))}
       </section>
     `, "assignments.html");
     return;
   }
 
-  const availableRiders = data.riders.filter(r => r.status !== "Offline");
+  const riders = await api.getRiders();
+  const availableRiders = riders;
 
   buildShell(`
     <div class="page_heading">
@@ -153,7 +161,7 @@ function dispatcherAssignments() {
           <label for="rider">Select Rider</label>
           <select id="rider" required>
             <option value="">Choose rider</option>
-            ${availableRiders.map(r => `<option value="${r.id}">${r.name} | ${r.status} | ${r.deliveries} current deliveries</option>`).join("")}
+            ${availableRiders.map(r => `<option value="${r.id}">${r.name}</option>`).join("")}
           </select>
 
           <div class="form_actions">
@@ -165,36 +173,21 @@ function dispatcherAssignments() {
     </section>
   `, "assignments.html");
 
-  document.getElementById("assignmentForm").addEventListener("submit", event => {
+  document.getElementById("assignmentForm").addEventListener("submit", async event => {
     event.preventDefault();
 
     const riderId = document.getElementById("rider").value;
-    const updated = getData();
-    const rider = updated.riders.find(r => r.id === riderId);
-    const target = updated.deliveries.find(d => d.id === delivery.id);
-
-    if (!rider || !target) return;
-
-    target.status = "Assigned";
-    target.riderId = rider.id;
-    target.rider = rider.name;
-    target.updatedAt = new Date().toISOString();
-    target.history.push({
-      status: "Assigned",
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      actor: "Dispatcher"
-    });
-
-    rider.deliveries += 1;
-    rider.status = "Busy";
-
-    saveData(updated);
-    window.location.href = `assignments.html?id=${delivery.id}`;
+    try {
+      await api.assignRider(delivery.id, riderId);
+      window.location.href = `assignments.html?id=${delivery.id}`;
+    } catch (err) {
+      alert(err.message);
+    }
   });
 }
 
-function dispatcherRiders() {
-  const data = getData();
+async function dispatcherRiders() {
+  const riders = await api.getRiders();
 
   buildShell(`
     <div class="page_heading">
@@ -210,12 +203,12 @@ function dispatcherRiders() {
         <table>
           <thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Current Deliveries</th></tr></thead>
           <tbody>
-            ${data.riders.map(r => `
+            ${riders.map(r => `
               <tr>
                 <td><strong>${r.name}</strong></td>
-                <td>${r.phone}</td>
-                <td>${statusBadge(r.status)}</td>
-                <td>${r.deliveries}</td>
+                <td>${r.phone || "-"}</td>
+                <td>${statusBadge("Available")}</td>
+                <td>-</td>
               </tr>
             `).join("")}
           </tbody>
@@ -230,8 +223,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const path = window.location.pathname;
 
-  if (path.endsWith("requests.html")) dispatcherRequests();
-  else if (path.endsWith("assignments.html")) dispatcherAssignments();
-  else if (path.endsWith("riders.html")) dispatcherRiders();
-  else dispatcherDashboard();
+  if (path.endsWith("requests.html")) {
+    dispatcherRequests();
+    enableAutoSync(dispatcherRequests);
+  }
+  else if (path.endsWith("assignments.html")) {
+    dispatcherAssignments();
+    // We shouldn't auto-sync assignments fully because it contains a form select that would get reset.
+  }
+  else if (path.endsWith("riders.html")) {
+    dispatcherRiders();
+    enableAutoSync(dispatcherRiders);
+  }
+  else {
+    dispatcherDashboard();
+    enableAutoSync(dispatcherDashboard);
+  }
 });

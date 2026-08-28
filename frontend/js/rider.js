@@ -1,7 +1,7 @@
 const RIDER_ID = "R01";
 
-function riderDeliveries() {
-  return getData().deliveries.filter(d => d.riderId === RIDER_ID);
+async function riderDeliveries() {
+  return await api.getDeliveries();
 }
 
 function riderTable(deliveries) {
@@ -39,8 +39,8 @@ function riderTable(deliveries) {
   `;
 }
 
-function riderDashboard() {
-  const deliveries = riderDeliveries();
+async function riderDashboard() {
+  const deliveries = await riderDeliveries();
   const assigned = deliveries.filter(d => d.status === "Assigned").length;
   const progress = deliveries.filter(d => d.status === "Picked Up").length;
   const delivered = deliveries.filter(d => d.status === "Delivered").length;
@@ -88,7 +88,8 @@ function riderDashboard() {
   `, "dashboard.html");
 }
 
-function riderDeliveriesPage() {
+async function riderDeliveriesPage() {
+  const deliveries = await riderDeliveries();
   buildShell(`
     <div class="page_heading">
       <div>
@@ -98,13 +99,16 @@ function riderDeliveriesPage() {
     </div>
     <section class="panel">
       <div class="panel_header"><h2>Assigned Deliveries</h2></div>
-      ${riderTable(riderDeliveries())}
+      ${riderTable(deliveries)}
     </section>
   `, "deliveries.html");
 }
 
-function riderDetails() {
-  const delivery = getDelivery(queryDeliveryId());
+async function riderDetails() {
+  let delivery = null;
+  try {
+    delivery = await api.getDelivery(queryDeliveryId());
+  } catch(e) {}
 
   if (!delivery) {
     buildShell(`<div class="notice error">Delivery was not found.</div>`, "");
@@ -139,7 +143,7 @@ function riderDetails() {
         ${nextStatus ? `
           <div class="form_actions">
             <button class="dark_button" id="updateStatus">${nextStatus}</button>
-            ${nextStatus === "Delivered" ? `<a class="ghost_button" href="scan.html?id=${delivery.id}">Scan Confirmation</a>` : ""}
+            <a class="ghost_button" href="scan.html?id=${delivery.id}">Scan Confirmation</a>
           </div>
         ` : `
           <div class="notice success" style="margin-top:20px">This delivery has been completed.</div>
@@ -162,39 +166,22 @@ function riderDetails() {
     </section>
   `, "delivery_details.html");
 
-  const updateButton = document.getElementById("updateStatus");
-
-  if (updateButton) {
-    updateButton.addEventListener("click", () => {
-      const data = getData();
-      const target = data.deliveries.find(d => d.id === delivery.id);
-
-      if (!target) return;
-
-      const next = target.status === "Assigned" ? "Picked Up" : "Delivered";
-      target.status = next;
-      target.updatedAt = new Date().toISOString();
-      target.history.push({
-        status: next,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        actor: "John Rider"
+    const updateButton = document.getElementById("updateStatus");
+    if (updateButton) {
+      updateButton.addEventListener("click", async () => {
+        try {
+          await api.updateStatus(delivery.id, nextStatus, "Updated via dashboard");
+          window.location.reload();
+        } catch (err) {
+          alert(err.message);
+        }
       });
-
-      if (next === "Delivered") {
-        const rider = data.riders.find(r => r.id === RIDER_ID);
-        if (rider && rider.deliveries > 0) rider.deliveries -= 1;
-        if (rider && rider.deliveries === 0) rider.status = "Available";
-      }
-
-      saveData(data);
-      window.location.reload();
-    });
-  }
+    }
 }
 
-function riderScan() {
+async function riderScan() {
   const requestedId = queryDeliveryId();
-  const riderOwned = riderDeliveries();
+  const riderOwned = await riderDeliveries();
   const selected = requestedId ? riderOwned.find(d => d.id === requestedId) : riderOwned.find(d => d.status === "Picked Up" || d.status === "Assigned");
 
   buildShell(`
@@ -214,8 +201,17 @@ function riderScan() {
           <div class="scan_lines">SCAN AREA</div>
         </div>
 
-        <label for="scanCode">Order Reference</label>
-        <input id="scanCode" value="${selected ? selected.id : ""}" placeholder="Example: RFX0012">
+        <label for="scanCode">Order Reference ID</label>
+        <input id="scanCode" value="${selected ? selected.id : ""}" placeholder="Example: RFX... or UUID">
+
+        <label for="scanToken">QR Token (from Customer)</label>
+        <input id="scanToken" value="${selected ? selected.qr_token : ""}" placeholder="Enter the exact token">
+
+        <label for="scanType">Scan Type</label>
+        <select id="scanType">
+           <option value="pickup" ${selected && selected.status === 'Assigned' ? 'selected' : ''}>Pickup</option>
+           <option value="dropoff" ${selected && selected.status === 'Picked Up' ? 'selected' : ''}>Dropoff</option>
+        </select>
 
         <div class="form_actions" style="justify-content:center">
           <button class="dark_button" id="confirmScan">Confirm Delivery</button>
@@ -226,36 +222,23 @@ function riderScan() {
     </section>
   `, "scan.html");
 
-  document.getElementById("confirmScan").addEventListener("click", () => {
-    const code = document.getElementById("scanCode").value.trim().toUpperCase();
-    const data = getData();
-    const target = data.deliveries.find(d => d.id === code && d.riderId === RIDER_ID);
+  document.getElementById("confirmScan").addEventListener("click", async () => {
+    const code = document.getElementById("scanCode").value.trim();
+    const token = document.getElementById("scanToken").value.trim();
+    const scanType = document.getElementById("scanType").value;
     const message = document.getElementById("scanMessage");
 
-    if (!target) {
-      message.innerHTML = `<div class="notice error">Order reference was not found among this rider's deliveries.</div>`;
+    if (!code || !token) {
+      message.innerHTML = `<div class="notice error">Order ID and Token are required.</div>`;
       return;
     }
 
-    if (target.status === "Delivered") {
-      message.innerHTML = `<div class="notice success">This delivery is already confirmed.</div>`;
-      return;
+    try {
+      await api.scanQr(code, token, scanType);
+      message.innerHTML = `<div class="notice success">Delivery ${code} has been successfully scanned as ${scanType}.</div>`;
+    } catch (err) {
+      message.innerHTML = `<div class="notice error">${err.message}</div>`;
     }
-
-    target.status = "Delivered";
-    target.updatedAt = new Date().toISOString();
-    target.history.push({
-      status: "Delivered",
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      actor: "John Rider"
-    });
-
-    const rider = data.riders.find(r => r.id === RIDER_ID);
-    if (rider && rider.deliveries > 0) rider.deliveries -= 1;
-    if (rider && rider.deliveries === 0) rider.status = "Available";
-
-    saveData(data);
-    message.innerHTML = `<div class="notice success">Delivery ${target.id} has been confirmed as delivered.</div>`;
   });
 }
 
@@ -264,8 +247,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const path = window.location.pathname;
 
-  if (path.endsWith("deliveries.html")) riderDeliveriesPage();
-  else if (path.endsWith("delivery_details.html")) riderDetails();
-  else if (path.endsWith("scan.html")) riderScan();
-  else riderDashboard();
+  if (path.endsWith("deliveries.html")) {
+    riderDeliveriesPage();
+    enableAutoSync(riderDeliveriesPage);
+  }
+  else if (path.endsWith("delivery_details.html")) {
+    riderDetails();
+  }
+  else if (path.endsWith("scan.html")) {
+    riderScan();
+  }
+  else {
+    riderDashboard();
+    enableAutoSync(riderDashboard);
+  }
 });

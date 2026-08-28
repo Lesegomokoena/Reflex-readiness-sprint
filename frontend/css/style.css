@@ -47,17 +47,134 @@ a {
 
 .auth_page {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
+  display: flex;
+}
+
+.auth_split_left {
+  flex: 1;
+  background: linear-gradient(135deg, var(--nav) 0%, #0f172a 100%);
+  color: white;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth_split_left h1 {
+  font-size: 42px;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.auth_split_left p {
+  font-size: 18px;
+  color: #94a3b8;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.auth_split_right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  padding: 40px;
 }
 
 .auth_card {
-  width: min(430px, 100%);
+  width: min(400px, 100%);
   background: var(--surface);
+  padding: 20px;
+}
+
+/* Landing Page Styles */
+.landing_nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.landing_nav .links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.hero {
+  text-align: center;
+  padding: 140px 20px;
+  background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.85)), url('../img/hero-bg.png');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+
+.hero h1 {
+  font-size: 64px;
+  color: #fff;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.hero p {
+  font-size: 22px;
+  color: #e2e8f0;
+  max-width: 650px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding: 80px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature_card {
+  background: var(--surface);
+  padding: 40px 30px;
+  border-radius: 12px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
-  padding: 36px;
+  text-align: center;
+}
+
+.feature_card h3 {
+  font-size: 20px;
+  margin: 20px 0 10px;
+}
+
+.feature_card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .auth_page {
+    flex-direction: column;
+  }
+  .auth_split_left {
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .features {
+    grid-template-columns: 1fr;
+    padding: 40px 20px;
+  }
+  .landing_nav {
+    padding: 20px;
+  }
+  .hero h1 {
+    font-size: 40px;
+  }
 }
 
 .brand_mark {

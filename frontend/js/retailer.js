@@ -44,9 +44,9 @@ function retailerTable(deliveries) {
   `;
 }
 
-function retailerDashboard() {
-  const data = getData();
-  const s = retailerStats(data.deliveries);
+async function retailerDashboard() {
+  const deliveries = await api.getDeliveries();
+  const s = retailerStats(deliveries);
 
   buildShell(`
     <div class="page_heading">
@@ -69,7 +69,7 @@ function retailerDashboard() {
         <h2>Recent Deliveries</h2>
         <a href="deliveries.html" class="muted">View all</a>
       </div>
-      ${retailerTable(data.deliveries.slice(0, 5))}
+      ${retailerTable(deliveries.slice(0, 5))}
     </section>
 
     <div class="grid_two">
@@ -78,8 +78,8 @@ function retailerDashboard() {
         <div class="panel_body">
           <div class="detail_grid">
             <div class="detail_item"><small>Pending</small><strong>${s.pending}</strong></div>
-            <div class="detail_item"><small>Assigned</small><strong>${data.deliveries.filter(d => d.status === "Assigned").length}</strong></div>
-            <div class="detail_item"><small>Picked Up</small><strong>${data.deliveries.filter(d => d.status === "Picked Up").length}</strong></div>
+            <div class="detail_item"><small>Assigned</small><strong>${deliveries.filter(d => d.status === "Assigned").length}</strong></div>
+            <div class="detail_item"><small>Picked Up</small><strong>${deliveries.filter(d => d.status === "Picked Up").length}</strong></div>
             <div class="detail_item"><small>Delivered</small><strong>${s.delivered}</strong></div>
           </div>
         </div>
@@ -139,39 +139,26 @@ function retailerCreate() {
     </section>
   `, "create_delivery.html");
 
-  document.getElementById("createDeliveryForm").addEventListener("submit", event => {
+  document.getElementById("createDeliveryForm").addEventListener("submit", async event => {
     event.preventDefault();
-
-    const data = getData();
-    const now = new Date();
     const id = nextDeliveryId();
 
-    data.deliveries.unshift({
-      id,
-      retailer: "Jane Retail",
-      customer: document.getElementById("customer").value.trim(),
-      phone: document.getElementById("phone").value.trim(),
-      address: document.getElementById("address").value.trim(),
-      item: document.getElementById("item").value.trim(),
-      status: "Pending",
-      riderId: null,
-      rider: null,
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-      history: [{
-        status: "Pending",
-        time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        actor: "Retailer"
-      }]
-    });
-
-    saveData(data);
-    window.location.href = `delivery_details.html?id=${id}`;
+    try {
+      const result = await api.createDelivery({
+        customer_name: document.getElementById("customer").value.trim(),
+        customer_phone: document.getElementById("phone").value.trim(),
+        delivery_address: document.getElementById("address").value.trim(),
+        item_description: document.getElementById("item").value.trim()
+      });
+      window.location.href = `delivery_details.html?id=${result.id}`;
+    } catch (err) {
+      alert(err.message);
+    }
   });
 }
 
-function retailerDeliveries() {
-  const data = getData();
+async function retailerDeliveries() {
+  const deliveries = await api.getDeliveries();
 
   buildShell(`
     <div class="page_heading">
@@ -184,13 +171,16 @@ function retailerDeliveries() {
 
     <section class="panel">
       <div class="panel_header"><h2>All Deliveries</h2></div>
-      ${retailerTable(data.deliveries)}
+      ${retailerTable(deliveries)}
     </section>
   `, "deliveries.html");
 }
 
-function retailerDetails() {
-  const delivery = getDelivery(queryDeliveryId());
+async function retailerDetails() {
+  let delivery;
+  try {
+    delivery = await api.getDelivery(queryDeliveryId());
+  } catch (err) {}
 
   if (!delivery) {
     buildShell(`<div class="notice error">Delivery was not found.</div>`, "");
@@ -242,7 +232,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
 
   if (path.endsWith("create_delivery.html")) retailerCreate();
-  else if (path.endsWith("deliveries.html")) retailerDeliveries();
-  else if (path.endsWith("delivery_details.html")) retailerDetails();
-  else retailerDashboard();
+  else if (path.endsWith("deliveries.html")) {
+    retailerDeliveries();
+    enableAutoSync(retailerDeliveries);
+  }
+  else if (path.endsWith("delivery_details.html")) {
+    retailerDetails();
+    enableAutoSync(retailerDetails);
+  }
+  else {
+    retailerDashboard();
+    enableAutoSync(retailerDashboard);
+  }
 });
