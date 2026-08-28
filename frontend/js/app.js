@@ -21,8 +21,7 @@ function navItems(role) {
     return [
       ["dashboard.html", "Dashboard"],
       ["deliveries.html", "Deliveries"],
-      ["create_delivery.html", "Create Delivery"],
-      ["delivery_details.html", "Delivery Details"]
+      ["create_delivery.html", "Create Delivery"]
     ];
   }
 
@@ -38,7 +37,6 @@ function navItems(role) {
   return [
     ["dashboard.html", "Dashboard"],
     ["deliveries.html", "My Deliveries"],
-    ["delivery_details.html", "Delivery Details"],
     ["scan.html", "Scan Confirmation"]
   ];
 }

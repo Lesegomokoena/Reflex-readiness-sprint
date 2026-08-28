@@ -105,9 +105,15 @@ async function riderDeliveriesPage() {
 }
 
 async function riderDetails() {
+  const deliveryId = queryDeliveryId();
+  if (!deliveryId) {
+    window.location.href = "dashboard.html";
+    return;
+  }
+
   let delivery = null;
   try {
-    delivery = await api.getDelivery(queryDeliveryId());
+    delivery = await api.getDelivery(deliveryId);
   } catch(e) {}
 
   if (!delivery) {

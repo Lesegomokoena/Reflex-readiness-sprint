@@ -177,9 +177,15 @@ async function retailerDeliveries() {
 }
 
 async function retailerDetails() {
+  const deliveryId = queryDeliveryId();
+  if (!deliveryId) {
+    window.location.href = "dashboard.html";
+    return;
+  }
+
   let delivery;
   try {
-    delivery = await api.getDelivery(queryDeliveryId());
+    delivery = await api.getDelivery(deliveryId);
   } catch (err) {}
 
   if (!delivery) {
