@@ -100,7 +100,9 @@ function getDelivery(id) {
 }
 
 function queryDeliveryId() {
-  return new URLSearchParams(window.location.search).get("id");
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id || id === "null" || id === "undefined") return null;
+  return id;
 }
 
 function bindCommon() {
