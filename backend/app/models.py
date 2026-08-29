@@ -26,7 +26,7 @@ class User(db.Model):
             'phone': self.phone,
             'email': self.email,
             'role': self.role,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None
         }
 
 class DeliveryRequest(db.Model):
@@ -59,8 +59,8 @@ class DeliveryRequest(db.Model):
             'status': self.status,
             'assigned_rider_id': self.assigned_rider_id,
             'qr_token': self.qr_token,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() + 'Z' if self.updated_at else None
         }
         if include_events:
             data['events'] = [e.to_dict() for e in self.events]
@@ -83,7 +83,7 @@ class DeliveryEvent(db.Model):
             'status': self.status,
             'actor_id': self.actor_id,
             'note': self.note,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None
         }
 
 class ProofOfDelivery(db.Model):
@@ -101,6 +101,6 @@ class ProofOfDelivery(db.Model):
             'delivery_request_id': self.delivery_request_id,
             'scan_type': self.scan_type,
             'scanned_by_id': self.scanned_by_id,
-            'scanned_at': self.scanned_at.isoformat() if self.scanned_at else None,
+            'scanned_at': self.scanned_at.isoformat() + 'Z' if self.scanned_at else None,
             'token_used': self.token_used
         }
