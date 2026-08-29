@@ -15,6 +15,32 @@ async function apiFetch(endpoint, options = {}) {
     ...options.headers
   };
 
+  const isGet = !options.method || options.method === "GET";
+  const cacheKey = `reflex_cache_${endpoint}`;
+
+  if (!isGet) {
+    // Clear cache on mutations to ensure fresh data
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith("reflex_cache_")) sessionStorage.removeItem(key);
+    });
+  }
+
+  // Stale-while-revalidate pattern
+  if (isGet) {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      // Fetch fresh data in background silently
+      fetch(`${API_URL}${endpoint}`, { ...options, headers })
+        .then(async res => {
+          if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+            const fresh = (await res.json()).data;
+            sessionStorage.setItem(cacheKey, JSON.stringify(fresh));
+          }
+        }).catch(() => {});
+      return JSON.parse(cached);
+    }
+  }
+
   const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
 
   if (response.status === 401) {
@@ -31,7 +57,11 @@ async function apiFetch(endpoint, options = {}) {
 
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
-    return (await response.json()).data;
+    const responseData = (await response.json()).data;
+    if (isGet) {
+      sessionStorage.setItem(cacheKey, JSON.stringify(responseData));
+    }
+    return responseData;
   }
   return response;
 }
