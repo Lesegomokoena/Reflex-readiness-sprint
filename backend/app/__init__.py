@@ -37,6 +37,6 @@ def create_app(config_class=Config):
 
     @app.errorhandler(Exception)
     def handle_unexpected_error(e):
-        return error_response('INTERNAL_SERVER_ERROR', 'An unexpected error occurred', 500)
+        return error_response('INTERNAL_SERVER_ERROR', f'An unexpected error occurred: {str(e)}', 500)
 
     return app
