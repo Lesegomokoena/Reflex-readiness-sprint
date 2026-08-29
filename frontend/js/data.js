@@ -1,4 +1,7 @@
-const API_URL = "http://localhost:5000/api";
+const IS_LOCAL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const API_URL = IS_LOCAL 
+  ? "http://localhost:5000/api" 
+  : "https://your-backend-app-name.onrender.com/api"; // Update this after deploying to Render!
 
 function getToken() {
   return localStorage.getItem("reflex_token");
