@@ -81,7 +81,7 @@ function adaptDelivery(d) {
               e.status === "PICKED_UP" ? "Picked Up" :
               e.status === "DELIVERED" ? "Delivered" :
               e.status === "CANCELLED" ? "Cancelled" : e.status,
-      time: new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      time: new Date(e.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" }),
       actor: e.actor_id 
     })),
     qr_token: d.qr_token

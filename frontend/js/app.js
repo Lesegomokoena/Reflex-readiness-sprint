@@ -111,9 +111,10 @@ function statusBadge(status) {
 }
 
 function formatDateTime(value) {
-  return new Date(value).toLocaleString([], {
+  return new Date(value).toLocaleString("en-US", {
     dateStyle: "medium",
-    timeStyle: "short"
+    timeStyle: "short",
+    timeZone: "Africa/Nairobi"
   });
 }
 
