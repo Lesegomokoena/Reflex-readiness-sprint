@@ -14,6 +14,9 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": app.config.get("FRONTEND_ORIGIN")}})
 
+    with app.app_context():
+        db.create_all()
+
     # Register Blueprints
     from app.auth.routes import auth_bp
     from app.deliveries.routes import deliveries_bp
