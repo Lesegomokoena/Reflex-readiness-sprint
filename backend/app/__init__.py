@@ -15,6 +15,7 @@ def create_app(config_class=Config):
     cors.init_app(app, resources={r"/api/*": {"origins": app.config.get("FRONTEND_ORIGIN")}})
 
     with app.app_context():
+        from app import models
         db.create_all()
 
     # Register Blueprints
