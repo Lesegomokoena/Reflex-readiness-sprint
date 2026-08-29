@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'reflex_users'
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20), nullable=True)
@@ -30,15 +30,15 @@ class User(db.Model):
         }
 
 class DeliveryRequest(db.Model):
-    __tablename__ = 'delivery_requests'
+    __tablename__ = 'reflex_delivery_requests'
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    created_by_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    created_by_id = db.Column(db.String(36), db.ForeignKey('reflex_users.id'), nullable=False)
     customer_name = db.Column(db.String(100), nullable=False)
     customer_phone = db.Column(db.String(20), nullable=False)
     delivery_address = db.Column(db.String(255), nullable=False)
     item_description = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(50), default='PENDING')
-    assigned_rider_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=True)
+    assigned_rider_id = db.Column(db.String(36), db.ForeignKey('reflex_users.id'), nullable=True)
     qr_token = db.Column(db.String(100), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -68,11 +68,11 @@ class DeliveryRequest(db.Model):
         return data
 
 class DeliveryEvent(db.Model):
-    __tablename__ = 'delivery_events'
+    __tablename__ = 'reflex_delivery_events'
     id = db.Column(db.Integer, primary_key=True)
-    delivery_request_id = db.Column(db.String(36), db.ForeignKey('delivery_requests.id'), nullable=False)
+    delivery_request_id = db.Column(db.String(36), db.ForeignKey('reflex_delivery_requests.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False)
-    actor_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    actor_id = db.Column(db.String(36), db.ForeignKey('reflex_users.id'), nullable=False)
     note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -87,11 +87,11 @@ class DeliveryEvent(db.Model):
         }
 
 class ProofOfDelivery(db.Model):
-    __tablename__ = 'proof_of_deliveries'
+    __tablename__ = 'reflex_proof_of_deliveries'
     id = db.Column(db.Integer, primary_key=True)
-    delivery_request_id = db.Column(db.String(36), db.ForeignKey('delivery_requests.id'), nullable=False)
+    delivery_request_id = db.Column(db.String(36), db.ForeignKey('reflex_delivery_requests.id'), nullable=False)
     scan_type = db.Column(db.String(20), nullable=False) # 'pickup', 'dropoff'
-    scanned_by_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    scanned_by_id = db.Column(db.String(36), db.ForeignKey('reflex_users.id'), nullable=False)
     scanned_at = db.Column(db.DateTime, default=datetime.utcnow)
     token_used = db.Column(db.String(100), nullable=False)
 
