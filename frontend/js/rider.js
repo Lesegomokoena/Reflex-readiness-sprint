@@ -248,6 +248,61 @@ async function riderScan() {
   });
 }
 
+async function riderProfile() {
+  let me;
+  try {
+    me = await api.me();
+  } catch (err) {
+    buildShell(`<div class="notice error">Failed to load profile.</div>`, "profile.html");
+    return;
+  }
+
+  buildShell(`
+    <div class="page_heading">
+      <div>
+        <h1>My Profile</h1>
+        <p>Update your personal information and contact details.</p>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div class="panel_header"><h2>Profile Details</h2></div>
+      <div class="panel_body">
+        <form id="profileForm">
+          <div class="form_grid">
+            <div class="form_full">
+              <label for="profileName">Full Name</label>
+              <input id="profileName" type="text" value="${me.name || ''}" required>
+            </div>
+            <div class="form_full">
+              <label for="profilePhone">Phone Number</label>
+              <input id="profilePhone" type="tel" value="${me.phone || ''}" placeholder="+1234567890">
+            </div>
+          </div>
+          <div class="form_actions">
+            <button class="dark_button" type="submit">Save Changes</button>
+          </div>
+          <div id="profileMessage" style="margin-top: 16px;"></div>
+        </form>
+      </div>
+    </section>
+  `, "profile.html");
+
+  document.getElementById("profileForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const name = document.getElementById("profileName").value.trim();
+    const phone = document.getElementById("profilePhone").value.trim();
+    const message = document.getElementById("profileMessage");
+
+    try {
+      await api.updateMe({ name, phone });
+      message.innerHTML = `<div class="notice success">Profile updated successfully.</div>`;
+    } catch (err) {
+      message.innerHTML = `<div class="notice error">${err.message}</div>`;
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   if (document.body.dataset.role !== "rider") return;
 
@@ -262,6 +317,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   else if (path.endsWith("scan.html")) {
     riderScan();
+  }
+  else if (path.endsWith("profile.html")) {
+    riderProfile();
   }
   else {
     riderDashboard();

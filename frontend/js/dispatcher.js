@@ -90,11 +90,12 @@ async function dispatcherDashboard() {
         <div class="panel_header"><h2>Rider Overview</h2></div>
         <div class="table_wrap">
           <table>
-            <thead><tr><th>Rider</th><th>Status</th><th>Deliveries</th></tr></thead>
+            <thead><tr><th>Rider</th><th>Phone</th><th>Status</th><th>Deliveries</th></tr></thead>
             <tbody>
               ${riderStats.map(r => `
                 <tr>
                   <td>${r.name}</td>
+                  <td>${r.phone || "-"}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.activeDeliveries}</td>
                 </tr>

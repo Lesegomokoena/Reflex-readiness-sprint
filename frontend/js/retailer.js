@@ -211,6 +211,7 @@ async function retailerDetails() {
           <div class="detail_item"><small>Address</small><strong>${delivery.address}</strong></div>
           <div class="detail_item"><small>Item</small><strong>${delivery.item}</strong></div>
           <div class="detail_item"><small>Rider</small><strong>${delivery.rider || "Not assigned"}</strong></div>
+          <div class="detail_item"><small>Rider Phone</small><strong>${delivery.riderPhone || "-"}</strong></div>
           <div class="detail_item"><small>Last Updated</small><strong>${formatDateTime(delivery.updatedAt)}</strong></div>
         </div>
       </div>

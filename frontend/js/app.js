@@ -54,7 +54,8 @@ function navItems(role) {
   return [
     ["dashboard.html", "Dashboard"],
     ["deliveries.html", "My Deliveries"],
-    ["scan.html", "Scan Confirmation"]
+    ["scan.html", "Scan Confirmation"],
+    ["profile.html", "My Profile"]
   ];
 }
 

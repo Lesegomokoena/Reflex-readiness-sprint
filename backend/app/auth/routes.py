@@ -69,3 +69,20 @@ def me():
     if not user:
         return error_response('NOT_FOUND', 'User not found', 404)
     return success_response(user.to_dict())
+
+@auth_bp.route('/me', methods=['PUT'])
+@jwt_required()
+def update_me():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if not user:
+        return error_response('NOT_FOUND', 'User not found', 404)
+        
+    data = request.get_json() or {}
+    if 'name' in data and data['name'].strip():
+        user.name = data['name'].strip()
+    if 'phone' in data:
+        user.phone = data['phone'].strip() if data['phone'] else None
+        
+    db.session.commit()
+    return success_response(user.to_dict())

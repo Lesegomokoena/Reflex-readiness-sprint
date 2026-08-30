@@ -93,7 +93,8 @@ const api = {
   },
   scanQr: (id, token, scanType) => apiFetch(`/deliveries/${id}/scan`, { method: "POST", body: JSON.stringify({ token, scan_type: scanType }) }),
   getRiders: () => apiFetch("/riders"),
-  me: () => apiFetch("/auth/me")
+  me: () => apiFetch("/auth/me"),
+  updateMe: (data) => apiFetch("/auth/me", { method: "PUT", body: JSON.stringify(data) })
 };
 
 function adaptDelivery(d) {
@@ -110,6 +111,7 @@ function adaptDelivery(d) {
             d.status === "CANCELLED" ? "Cancelled" : d.status,
     riderId: d.assigned_rider_id,
     rider: d.assigned_rider_name || (d.assigned_rider_id ? "Assigned Rider" : null),
+    riderPhone: d.assigned_rider_phone || null,
     createdAt: d.created_at,
     updatedAt: d.updated_at,
     history: (d.events || []).map(e => ({
