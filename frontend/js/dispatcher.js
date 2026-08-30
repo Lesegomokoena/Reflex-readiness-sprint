@@ -55,9 +55,11 @@ async function dispatcherDashboard() {
 
   const riderStats = riders.map(r => {
     const active = deliveries.filter(d => d.riderId === r.id && (d.status === "Assigned" || d.status === "Picked Up")).length;
+    const completed = deliveries.filter(d => d.riderId === r.id && d.status === "Delivered").length;
     return {
       ...r,
       activeDeliveries: active,
+      completedDeliveries: completed,
       status: active > 0 ? "Busy" : "Available"
     };
   });
@@ -90,7 +92,7 @@ async function dispatcherDashboard() {
         <div class="panel_header"><h2>Rider Overview</h2></div>
         <div class="table_wrap">
           <table>
-            <thead><tr><th>Rider</th><th>Phone</th><th>Status</th><th>Deliveries</th></tr></thead>
+            <thead><tr><th>Rider</th><th>Phone</th><th>Status</th><th>Active</th><th>Completed</th></tr></thead>
             <tbody>
               ${riderStats.map(r => `
                 <tr>
@@ -98,6 +100,7 @@ async function dispatcherDashboard() {
                   <td>${r.phone || "-"}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.activeDeliveries}</td>
+                  <td>${r.completedDeliveries}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -208,9 +211,11 @@ async function dispatcherRiders() {
 
   const riderStats = riders.map(r => {
     const active = deliveries.filter(d => d.riderId === r.id && (d.status === "Assigned" || d.status === "Picked Up")).length;
+    const completed = deliveries.filter(d => d.riderId === r.id && d.status === "Delivered").length;
     return {
       ...r,
       activeDeliveries: active,
+      completedDeliveries: completed,
       status: active > 0 ? "Busy" : "Available"
     };
   });
@@ -227,7 +232,7 @@ async function dispatcherRiders() {
       <div class="panel_header"><h2>Rider List</h2></div>
       <div class="table_wrap">
         <table>
-          <thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Current Deliveries</th></tr></thead>
+          <thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Active</th><th>Completed</th></tr></thead>
           <tbody>
             ${riderStats.map(r => `
               <tr>
@@ -235,6 +240,7 @@ async function dispatcherRiders() {
                 <td>${r.phone || "-"}</td>
                 <td>${statusBadge(r.status)}</td>
                 <td>${r.activeDeliveries}</td>
+                <td>${r.completedDeliveries}</td>
               </tr>
             `).join("")}
           </tbody>
