@@ -72,7 +72,7 @@ async function apiFetch(endpoint, options = {}) {
 
 const api = {
   login: (email, password) => apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
-  register: (name, email, password, role) => apiFetch("/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role }) }),
+  register: (name, email, password, role, phone) => apiFetch("/auth/register", { method: "POST", body: JSON.stringify({ name, email, password, role, phone }) }),
   getDeliveries: async () => {
     const list = await apiFetch("/deliveries");
     return list.map(adaptDelivery);

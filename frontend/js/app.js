@@ -172,9 +172,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const role = document.getElementById("role").value;
+      
+      const phoneInput = document.getElementById("phone");
+      const phone = phoneInput ? phoneInput.value.trim() : null;
 
       try {
-        const res = await api.register(name, email, password, role);
+        const res = await api.register(name, email, password, role, phone);
         localStorage.setItem("reflex_token", res.access_token);
         localStorage.setItem("reflex_role", res.role);
 

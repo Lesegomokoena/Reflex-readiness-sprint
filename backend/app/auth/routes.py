@@ -36,6 +36,7 @@ def register():
     password = data.get('password')
     name = data.get('name')
     role = data.get('role', 'retailer_staff')
+    phone = data.get('phone')
 
     if not email or not password or not name:
         return error_response('BAD_REQUEST', 'Email, password, and name are required', 400)
@@ -46,7 +47,7 @@ def register():
     if User.query.filter_by(email=email).first():
         return error_response('CONFLICT', 'Email already registered', 409)
 
-    user = User(email=email, name=name, role=role)
+    user = User(email=email, name=name, role=role, phone=phone)
     user.set_password(password)
     db.session.add(user)
     db.session.commit()

@@ -36,6 +36,9 @@
           <label for="password">Password</label>
           <input id="password" type="password" placeholder="••••••••" required>
 
+          <label for="phone" id="phoneLabel" style="display: none;">Phone Number</label>
+          <input id="phone" type="tel" placeholder="+1234567890" style="display: none;">
+
           <label for="role">Account Type</label>
           <select id="role" required>
             <option value="retailer_staff">Retailer</option>
@@ -56,5 +59,27 @@
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const roleSelect = document.getElementById("role");
+      const phoneLabel = document.getElementById("phoneLabel");
+      const phoneInput = document.getElementById("phone");
+      
+      if (roleSelect && phoneLabel && phoneInput) {
+        roleSelect.addEventListener("change", () => {
+          if (roleSelect.value === "rider") {
+            phoneLabel.style.display = "block";
+            phoneInput.style.display = "block";
+            phoneInput.required = true;
+          } else {
+            phoneLabel.style.display = "none";
+            phoneInput.style.display = "none";
+            phoneInput.required = false;
+            phoneInput.value = "";
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
