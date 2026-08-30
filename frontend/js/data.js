@@ -109,7 +109,7 @@ function adaptDelivery(d) {
           d.status === "DELIVERED" ? "Delivered" :
             d.status === "CANCELLED" ? "Cancelled" : d.status,
     riderId: d.assigned_rider_id,
-    rider: d.assigned_rider_id ? "Assigned Rider" : null,
+    rider: d.assigned_rider_name || (d.assigned_rider_id ? "Assigned Rider" : null),
     createdAt: d.created_at,
     updatedAt: d.updated_at,
     history: (d.events || []).map(e => ({

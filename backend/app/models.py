@@ -58,6 +58,7 @@ class DeliveryRequest(db.Model):
             'item_description': self.item_description,
             'status': self.status,
             'assigned_rider_id': self.assigned_rider_id,
+            'assigned_rider_name': self.assigned_rider.name if self.assigned_rider else None,
             'qr_token': self.qr_token,
             'created_at': self.created_at.isoformat() + 'Z' if self.created_at else None,
             'updated_at': self.updated_at.isoformat() + 'Z' if self.updated_at else None

@@ -47,6 +47,15 @@ async function dispatcherDashboard() {
   const riders = await api.getRiders();
   const s = dispatcherStats(deliveries);
 
+  const riderStats = riders.map(r => {
+    const active = deliveries.filter(d => d.riderId === r.id && (d.status === "Assigned" || d.status === "Picked Up")).length;
+    return {
+      ...r,
+      activeDeliveries: active,
+      status: active > 0 ? "Busy" : "Available"
+    };
+  });
+
   buildShell(`
     <div class="page_heading">
       <div>
@@ -77,11 +86,11 @@ async function dispatcherDashboard() {
           <table>
             <thead><tr><th>Rider</th><th>Status</th><th>Deliveries</th></tr></thead>
             <tbody>
-              ${riders.map(r => `
+              ${riderStats.map(r => `
                 <tr>
                   <td>${r.name}</td>
-                  <td>${statusBadge("Available")}</td>
-                  <td>-</td>
+                  <td>${statusBadge(r.status)}</td>
+                  <td>${r.activeDeliveries}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -188,6 +197,16 @@ async function dispatcherAssignments() {
 
 async function dispatcherRiders() {
   const riders = await api.getRiders();
+  const deliveries = await api.getDeliveries();
+
+  const riderStats = riders.map(r => {
+    const active = deliveries.filter(d => d.riderId === r.id && (d.status === "Assigned" || d.status === "Picked Up")).length;
+    return {
+      ...r,
+      activeDeliveries: active,
+      status: active > 0 ? "Busy" : "Available"
+    };
+  });
 
   buildShell(`
     <div class="page_heading">
@@ -203,12 +222,12 @@ async function dispatcherRiders() {
         <table>
           <thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Current Deliveries</th></tr></thead>
           <tbody>
-            ${riders.map(r => `
+            ${riderStats.map(r => `
               <tr>
                 <td><strong>${r.name}</strong></td>
                 <td>${r.phone || "-"}</td>
-                <td>${statusBadge("Available")}</td>
-                <td>-</td>
+                <td>${statusBadge(r.status)}</td>
+                <td>${r.activeDeliveries}</td>
               </tr>
             `).join("")}
           </tbody>
