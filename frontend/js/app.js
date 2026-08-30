@@ -80,7 +80,7 @@ function buildShell(content, activeFile) {
         
         <div style="margin-top: auto;">
           <a class="nav_link" href="../index.html" style="color: #98a2b3;">&larr; Back to Website</a>
-          <a class="nav_link logout_link" href="../login.html" onclick="localStorage.removeItem('reflex_token'); localStorage.removeItem('reflex_role')" style="margin-top: 4px;">Sign out</a>
+          <a class="nav_link logout_link" href="../login.html" onclick="localStorage.removeItem('reflex_token'); localStorage.removeItem('reflex_role'); sessionStorage.clear();" style="margin-top: 4px;">Sign out</a>
         </div>
       </aside>
 
