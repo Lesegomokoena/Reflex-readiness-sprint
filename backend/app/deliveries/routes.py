@@ -193,17 +193,14 @@ def update_status(id):
 
 @deliveries_bp.route('/<string:id>/scan', methods=['POST'])
 @jwt_required()
-@role_required('rider', 'dispatcher')
+@role_required('rider')
 def scan_qr(id):
     delivery = DeliveryRequest.query.get(id)
     if not delivery:
         return error_response('NOT_FOUND', 'Delivery request not found', 404)
         
     current_user_id = get_jwt_identity()
-    claims = get_jwt()
-    role = claims.get('role')
-    
-    if role == 'rider' and delivery.assigned_rider_id != current_user_id:
+    if delivery.assigned_rider_id != current_user_id:
         return error_response('FORBIDDEN', 'Cannot scan for a delivery not assigned to you', 403)
         
     data = request.get_json() or {}
