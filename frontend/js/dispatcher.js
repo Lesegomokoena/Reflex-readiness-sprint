@@ -1,9 +1,15 @@
 function dispatcherStats(deliveries) {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
   return {
     open: deliveries.filter(d => d.status === "Pending").length,
     assigned: deliveries.filter(d => d.status === "Assigned").length,
     progress: deliveries.filter(d => d.status === "Picked Up").length,
-    delivered: deliveries.filter(d => d.status === "Delivered").length
+    delivered: deliveries.filter(d => {
+      if (d.status !== "Delivered") return false;
+      return new Date(d.updatedAt) >= todayStart;
+    }).length
   };
 }
 
