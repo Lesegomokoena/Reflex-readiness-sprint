@@ -43,10 +43,14 @@ async function apiFetch(endpoint, options = {}) {
 
   const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
 
-  if (response.status === 401) {
+  if (response.status === 401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/register")) {
     localStorage.removeItem("reflex_token");
     localStorage.removeItem("reflex_role");
-    window.location.href = "../login.html";
+    
+    // Fix relative path depending on current location
+    const isRoot = window.location.pathname.endsWith("/login.html") || window.location.pathname.endsWith("/index.html") || window.location.pathname.endsWith("/signup.html");
+    window.location.href = isRoot ? "login.html" : "../login.html";
+    
     throw new Error("Session expired. Redirecting to login...");
   }
 
